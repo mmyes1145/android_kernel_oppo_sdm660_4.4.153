@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: Build Kernel from OPPO R11
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
 
       - name: Get branch names.
