@@ -1,0 +1,12 @@
+--- mm/shmem.c
++++ mm/shmem.c
+@@ -33,6 +33,9 @@
+ #include <linux/swap.h>
+ #include <linux/uio.h>
+ #include <linux/khugepaged.h>
++#ifdef CONFIG_KSU_SUSFS
++#include <linux/susfs.h>
++#endif
+ 
+ static struct vfsmount *shm_mnt;
+ 
