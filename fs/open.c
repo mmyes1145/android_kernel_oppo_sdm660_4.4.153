@@ -224,6 +224,14 @@ void debug_record_file(char *action, const char *filename, int result)
 #include <linux/susfs.h>
 #endif
 
+#ifdef CONFIG_KSU_SUSFS
+#include <linux/susfs.h>
+#endif
+
+#ifdef CONFIG_KSU_SUSFS
+#include <linux/susfs.h>
+#endif
+
 int do_truncate2(struct vfsmount *mnt, struct dentry *dentry, loff_t length,
 		unsigned int time_attrs, struct file *filp)
 {
@@ -986,6 +994,18 @@ static int do_dentry_open(struct file *f,
 {
 	static const struct file_operations empty_fops = {};
 	int error;
+#ifdef CONFIG_KSU_SUSFS_SUS_PATH
+	struct filename* fname;
+	int status;
+
+	fname = getname_safe(pathname);
+	status = susfs_sus_path_by_filename(fname, &error, SYSCALL_FAMILY_ALL_ENOENT);
+	putname_safe(fname);
+
+	if (status) {
+		return error;
+	}
+#endif
 
 	f->f_mode = OPEN_FMODE(f->f_flags) | FMODE_LSEEK |
 				FMODE_PREAD | FMODE_PWRITE;

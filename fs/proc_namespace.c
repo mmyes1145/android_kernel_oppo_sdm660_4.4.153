@@ -108,6 +108,11 @@ static int show_vfsmnt(struct seq_file *m, struct vfsmount *mnt)
 		return SEQ_SKIP;
 #endif
 
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	if (unlikely((r->mnt.mnt_root->d_inode->i_state & INODE_STATE_SUS_MOUNT) && !susfs_is_current_ksu_domain()))
+		return 0;
+#endif
+
 	if (sb->s_op->show_devname) {
 		err = sb->s_op->show_devname(m, mnt_path.dentry);
 		if (err)
@@ -143,6 +148,11 @@ static int show_mountinfo(struct seq_file *m, struct vfsmount *mnt)
 	struct super_block *sb = mnt->mnt_sb;
 	struct path mnt_path = { .dentry = mnt->mnt_root, .mnt = mnt };
 	int err = 0;
+
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	if (unlikely((r->mnt.mnt_root->d_inode->i_state & INODE_STATE_SUS_MOUNT) && !susfs_is_current_ksu_domain()))
+		return 0;
+#endif
 
 	seq_printf(m, "%i %i %u:%u ", r->mnt_id, r->mnt_parent->mnt_id,
 		   MAJOR(sb->s_dev), MINOR(sb->s_dev));
@@ -208,6 +218,11 @@ static int show_vfsstat(struct seq_file *m, struct vfsmount *mnt)
 
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
 	if (susfs_sus_mount(mnt, &p->root))
+		return 0;
+#endif
+
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+	if (unlikely((r->mnt.mnt_root->d_inode->i_state & INODE_STATE_SUS_MOUNT) && !susfs_is_current_ksu_domain()))
 		return 0;
 #endif
 

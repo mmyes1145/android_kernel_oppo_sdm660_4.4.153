@@ -1,23 +1,21 @@
 --- kernel/sys.c
 +++ kernel/sys.c
-@@ -66,6 +66,10 @@
- #include <asm/io.h>
- #include <asm/unistd.h>
+@@ -1143,12 +1143,18 @@ static int override_release(char __user *release, size_t len)
+ 	return ret;
+ }
  
-+#ifdef CONFIG_KSU_SUSFS
-+#include <linux/susfs.h>
++#ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
++extern void susfs_spoof_uname(struct new_utsname* tmp);
 +#endif
-+
- #ifndef SET_UNALIGN_CTL
- # define SET_UNALIGN_CTL(a, b)	(-EINVAL)
- #endif
-@@ -1150,6 +1154,9 @@ SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
+ SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
+ {
+ 	struct new_utsname tmp;
+ 
  	down_read(&uts_sem);
  	memcpy(&tmp, utsname(), sizeof(tmp));
- 	up_read(&uts_sem);
 +#ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
 +	susfs_spoof_uname(&tmp);
 +#endif
+ 	up_read(&uts_sem);
  	if (copy_to_user(name, &tmp, sizeof(tmp)))
  		return -EFAULT;
- 
